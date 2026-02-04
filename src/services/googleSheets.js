@@ -29,20 +29,20 @@ export const fetchProjects = async () => {
 
         // Map Spreadsheet headers to Application state structure
         return data.map(project => ({
-            id: project.ID || project.id,
+            id: project.ID || project.id || project.Id,
             title: project.Title || project.title,
             subject: project.Subject || project.subject,
             budget: project.Budget || project.budget,
-            classLevel: project.Level || project.classLevel,
+            classLevel: project.Level || project.level || project.classLevel,
             difficulty: project.Difficulty || project.difficulty,
             rating: project.Rating || project.rating,
             type: project.Type || project.type,
-            image: project['Image URL'] || project.image,
-            concept: project.Concept || project.concept,
-            materials: typeof project.Materials === 'string' ? project.Materials.split(',').map(m => m.trim()) : [],
+            image: project['Image URL'] || project['ImageURL'] || project.ImageUrl || project.image || project.Image,
+            concept: project.Concept || project.concept || project.Description || project.description,
+            materials: typeof (project.Materials || project.materials) === 'string' ? (project.Materials || project.materials).split(',').map(m => m.trim()) : [],
             instructions: {
-                en: typeof project['Instructions (EN)'] === 'string' ? project['Instructions (EN)'].split('\n') : [],
-                ta: typeof project['Instructions (TA)'] === 'string' ? project['Instructions (TA)'].split('\n') : []
+                en: typeof (project['Instructions (EN)'] || project['instructions_en']) === 'string' ? (project['Instructions (EN)'] || project['instructions_en']).split('\n') : [],
+                ta: typeof (project['Instructions (TA)'] || project['instructions_ta']) === 'string' ? (project['Instructions (TA)'] || project['instructions_ta']).split('\n') : []
             }
         }));
     } catch (error) {
