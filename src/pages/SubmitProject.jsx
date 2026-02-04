@@ -1,18 +1,39 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { submitProject } from '../services/googleSheets';
 
 export default function SubmitProject() {
     const [title, setTitle] = useState("");
     const [subject, setSubject] = useState("Physics");
     const [budget, setBudget] = useState("");
     const [materials, setMaterials] = useState("");
+    const [level, setLevel] = useState("6-8");
     const [instructions, setInstructions] = useState("");
+    const [loading, setLoading] = useState(false);
     const [submitted, setSubmitted] = useState(false);
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        // Mock submission
-        setSubmitted(true);
+        setLoading(true);
+
+        const projectData = {
+            id: Date.now(),
+            title,
+            subject,
+            budget: Number(budget),
+            classLevel: level,
+            materials: materials,
+            concept: "", // Can be filled by user later
+            instructions: instructions
+        };
+
+        const success = await submitProject(projectData);
+        setLoading(false);
+        if (success) {
+            setSubmitted(true);
+        } else {
+            alert("Submission failed. Please check your connection.");
+        }
     };
 
     if (submitted) {
@@ -22,7 +43,7 @@ export default function SubmitProject() {
                     <div style={{ fontSize: 60, marginBottom: 20 }}>🎉</div>
                     <h2 style={{ marginBottom: 10 }}>Idea Submitted!</h2>
                     <p style={{ color: 'var(--text-muted)', marginBottom: 30 }}>
-                        Thank you for contributing to the community. Our team will review your project and add it to the library soon.
+                        Thank you for contributing to the community. Your project has been sent to our database and will appear in the library shortly.
                     </p>
                     <Link to="/dashboard" className="btn-primary" style={{ textDecoration: 'none' }}>Back to Dashboard</Link>
                 </div>
@@ -61,13 +82,24 @@ export default function SubmitProject() {
                         </select>
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                        <label style={{ fontWeight: 600 }}>Estimated Budget (₹)</label>
-                        <input
-                            type="number" placeholder="50"
-                            value={budget} onChange={e => setBudget(e.target.value)} required
+                        <label style={{ fontWeight: 600 }}>Class Level</label>
+                        <select
+                            value={level} onChange={e => setLevel(e.target.value)}
                             style={{ padding: 15, borderRadius: 12, background: 'var(--background)', border: '1px solid var(--glass-border)', color: 'white', fontSize: 16 }}
-                        />
+                        >
+                            <option>6-8</option>
+                            <option>9-10</option>
+                        </select>
                     </div>
+                </div>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                    <label style={{ fontWeight: 600 }}>Estimated Budget (₹)</label>
+                    <input
+                        type="number" placeholder="50"
+                        value={budget} onChange={e => setBudget(e.target.value)} required
+                        style={{ padding: 15, borderRadius: 12, background: 'var(--background)', border: '1px solid var(--glass-border)', color: 'white', fontSize: 16 }}
+                    />
                 </div>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
@@ -88,8 +120,11 @@ export default function SubmitProject() {
                     />
                 </div>
 
-                <button type="submit" className="btn-primary" style={{ padding: 18, fontSize: 18, marginTop: 10 }}>Submit to Community</button>
+                <button type="submit" className="btn-primary" disabled={loading} style={{ padding: 18, fontSize: 18, marginTop: 10, opacity: loading ? 0.7 : 1 }}>
+                    {loading ? "Submitting..." : "Submit to Community"}
+                </button>
             </form>
         </div>
     );
 }
+

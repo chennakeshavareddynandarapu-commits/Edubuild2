@@ -1,21 +1,41 @@
-import React, { useState } from 'react';
-import { projects } from '../data/project';
+import React, { useState, useEffect } from 'react';
+import { fetchProjects } from '../data/project';
 import { useLanguage } from '../context/LanguageContext';
 import { Link } from 'react-router-dom';
 
 export default function ProjectList() {
     const { language, translate } = useLanguage();
+    const [allProjects, setAllProjects] = useState([]);
+    const [loading, setLoading] = useState(true);
     const [filterBudget, setFilterBudget] = useState(1000);
     const [filterClass, setFilterClass] = useState("All");
 
-    const filteredProjects = projects.filter(p => {
-        return p.budget <= filterBudget && (filterClass === "All" || p.classLevel === filterClass);
+    useEffect(() => {
+        const load = async () => {
+            try {
+                const data = await fetchProjects();
+                setAllProjects(data);
+            } catch (error) {
+                console.error("Error loading library projects:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        load();
+    }, []);
+
+    const filteredProjects = allProjects.filter(p => {
+        return (p.budget || p.diyPrice || 0) <= filterBudget && (filterClass === "All" || p.classLevel === filterClass);
     });
+
+    if (loading) {
+        return <div className="container" style={{ textAlign: 'center', padding: '100px' }}>Exploring the Experiment Library... 🔍</div>;
+    }
 
     return (
         <div className="container animate-fade">
             <h1 style={{ fontSize: '2.5rem', marginBottom: 10 }}>Experiment Library</h1>
-            <p style={{ color: 'var(--text-muted)', marginBottom: 40 }}>Discover structured guides for hands-on learning.</p>
+            <p style={{ color: 'var(--text-muted)', marginBottom: 40 }}>Discover structured guides for hands-on learning from our community.</p>
 
             <div className="glass-card" style={{ marginBottom: 40, padding: 30, display: 'flex', flexWrap: 'wrap', gap: 40, alignItems: 'center' }}>
                 <div style={{ flex: 1, minWidth: 200 }}>
@@ -45,7 +65,7 @@ export default function ProjectList() {
             </div>
 
             <div className="grid-auto">
-                {filteredProjects.map(p => (
+                {filteredProjects.length > 0 ? filteredProjects.map(p => (
                     <div key={p.id} className="glass-card animate-fade" style={{ padding: 25, display: 'flex', flexDirection: 'column', gap: 15 }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                             <div className="badge">{p.subject}</div>
@@ -59,13 +79,20 @@ export default function ProjectList() {
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                             <div>
                                 <span style={{ fontSize: 12, color: 'var(--text-muted)', display: 'block' }}>Cost</span>
-                                <span style={{ fontWeight: 700, fontSize: 18, color: 'var(--accent)' }}>₹{p.budget}</span>
+                                <span style={{ fontWeight: 700, fontSize: 18, color: 'var(--accent)' }}>₹{p.budget || p.diyPrice}</span>
                             </div>
                             <Link to={`/project/${p.id}`} className="btn-primary" style={{ padding: '8px 20px' }}>View Guide</Link>
                         </div>
                     </div>
-                ))}
+                )) : (
+                    <div className="glass-card" style={{ gridColumn: '1 / -1', padding: 50, textAlign: 'center' }}>
+                        <div style={{ fontSize: 40, marginBottom: 20 }}>🔍</div>
+                        <h3>No projects found</h3>
+                        <p style={{ color: 'var(--text-muted)' }}>Try adjusting your budget or class filters.</p>
+                    </div>
+                )}
             </div>
         </div>
     );
 }
+

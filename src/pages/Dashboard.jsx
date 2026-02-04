@@ -1,17 +1,37 @@
-import React, { useContext, useState } from 'react'
+import React, { useContext, useState, useEffect } from 'react'
 import { AuthContext } from '../context/AuthContext'
-import { projects } from '../data/project'
+import { fetchProjects } from '../data/project'
 import { getRecommendations } from '../utils/recommendation'
 import { Link } from 'react-router-dom'
 
 export default function Dashboard() {
   const { user, logout } = useContext(AuthContext)
 
+  const [allProjects, setAllProjects] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [prefBudget, setPrefBudget] = useState(500);
   const [prefClass, setPrefClass] = useState("6-8");
   const [prefSubject, setPrefSubject] = useState("Physics");
 
-  const recommendations = getRecommendations(projects, prefBudget, prefClass, prefSubject);
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const data = await fetchProjects();
+        setAllProjects(data);
+      } catch (error) {
+        console.error("Error loading projects on dashboard:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    load();
+  }, []);
+
+  const recommendations = getRecommendations(allProjects, prefBudget, prefClass, prefSubject);
+
+  if (loading) {
+    return <div className="container" style={{ textAlign: 'center', padding: '100px' }}>Loading Your Recommendations... 🧬</div>;
+  }
 
   return (
     <div className="container animate-fade">
@@ -67,12 +87,12 @@ export default function Dashboard() {
         </div>
 
         <div className="grid-auto">
-          {recommendations.map(p => (
+          {recommendations.length > 0 ? recommendations.map(p => (
             <div key={p.id} className="glass-card animate-fade" style={{ padding: 25, display: 'flex', flexDirection: 'column', gap: 15 }}>
               <div className="badge" style={{ alignSelf: 'flex-start' }}>{p.subject}</div>
               <h3 style={{ fontSize: '1.4rem' }}>{p.title}</h3>
               <p style={{ color: 'var(--text-muted)', fontSize: 14, flex: 1 }}>
-                {p.concept.substring(0, 80)}...
+                {p.concept ? p.concept.substring(0, 80) : ''}...
               </p>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <span style={{ fontWeight: 700, fontSize: 18, color: 'var(--accent)' }}>₹{p.budget}</span>
@@ -80,7 +100,11 @@ export default function Dashboard() {
               </div>
               <Link to={`/project/${p.id}`} className="btn-primary" style={{ textDecoration: 'none' }}>View Full Guide</Link>
             </div>
-          ))}
+          )) : (
+            <div className="glass-card" style={{ gridColumn: '1 / -1', padding: 30, textAlign: 'center' }}>
+              <p>No projects match your current filters. Try increasing your budget!</p>
+            </div>
+          )}
         </div>
       </section>
 
@@ -92,3 +116,4 @@ export default function Dashboard() {
     </div>
   )
 }
+
