@@ -88,17 +88,26 @@ export default function Dashboard() {
 
         <div className="grid-auto">
           {recommendations.length > 0 ? recommendations.map(p => (
-            <div key={p.id} className="glass-card animate-fade" style={{ padding: 25, display: 'flex', flexDirection: 'column', gap: 15 }}>
-              <div className="badge" style={{ alignSelf: 'flex-start' }}>{p.subject}</div>
-              <h3 style={{ fontSize: '1.4rem' }}>{p.title}</h3>
-              <p style={{ color: 'var(--text-muted)', fontSize: 14, flex: 1 }}>
-                {p.concept ? p.concept.substring(0, 80) : ''}...
-              </p>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ fontWeight: 700, fontSize: 18, color: 'var(--accent)' }}>₹{p.budget}</span>
-                <span style={{ fontSize: 14 }}>⭐ {p.rating}</span>
+            <div key={p.id} className="glass-card animate-fade" style={{ padding: 0, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+              <div style={{ width: '100%', height: '160px', overflow: 'hidden' }}>
+                <img
+                  src={p.image || "https://images.unsplash.com/photo-1532094349884-543bc11b234d?auto=format&fit=crop&q=80&w=800"}
+                  alt={p.title}
+                  style={{ width: '100%', height: '100%', objectFit: 'cover', transition: '0.4s' }}
+                />
               </div>
-              <Link to={`/project/${p.id}`} className="btn-primary" style={{ textDecoration: 'none' }}>View Full Guide</Link>
+              <div style={{ padding: 25, display: 'flex', flexDirection: 'column', gap: 15, flex: 1 }}>
+                <div className="badge" style={{ alignSelf: 'flex-start' }}>{p.subject}</div>
+                <h3 style={{ fontSize: '1.4rem' }}>{p.title}</h3>
+                <p style={{ color: 'var(--text-muted)', fontSize: 14, flex: 1 }}>
+                  {p.concept ? (p.concept.length > 80 ? p.concept.substring(0, 80) + '...' : p.concept) : ''}
+                </p>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ fontWeight: 700, fontSize: 18, color: 'var(--accent)' }}>₹{p.budget || p.diyPrice}</span>
+                  <span style={{ fontSize: 14 }}>⭐ {p.rating}</span>
+                </div>
+                <Link to={`/project/${p.id}`} className="btn-primary" style={{ textDecoration: 'none', fontSize: 14 }}>View Full Guide</Link>
+              </div>
             </div>
           )) : (
             <div className="glass-card" style={{ gridColumn: '1 / -1', padding: 30, textAlign: 'center' }}>
@@ -116,4 +125,5 @@ export default function Dashboard() {
     </div>
   )
 }
+
 

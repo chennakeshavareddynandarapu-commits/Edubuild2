@@ -66,22 +66,33 @@ export default function ProjectList() {
 
             <div className="grid-auto">
                 {filteredProjects.length > 0 ? filteredProjects.map(p => (
-                    <div key={p.id} className="glass-card animate-fade" style={{ padding: 25, display: 'flex', flexDirection: 'column', gap: 15 }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                            <div className="badge">{p.subject}</div>
-                            <span style={{ fontSize: 14, color: 'var(--text-muted)' }}>⭐ {p.rating}</span>
+                    <div key={p.id} className="glass-card animate-fade" style={{ padding: 0, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+                        <div style={{ width: '100%', height: '180px', overflow: 'hidden', position: 'relative' }}>
+                            <img
+                                src={p.image || "https://images.unsplash.com/photo-1532094349884-543bc11b234d?auto=format&fit=crop&q=80&w=800"}
+                                alt={p.title}
+                                style={{ width: '100%', height: '100%', objectFit: 'cover', transition: '0.4s' }}
+                                onMouseOver={e => e.target.style.transform = 'scale(1.1)'}
+                                onMouseOut={e => e.target.style.transform = 'scale(1)'}
+                            />
+                            <div className="badge" style={{ position: 'absolute', top: 15, left: 15, background: 'rgba(99, 102, 241, 0.9)', color: 'white' }}>{p.subject}</div>
                         </div>
-                        <h3 style={{ fontSize: '1.4rem' }}>{p.title}</h3>
-                        <p style={{ color: 'var(--text-muted)', fontSize: 14, flex: 1 }}>
-                            Level: {p.classLevel}
-                        </p>
-                        <hr style={{ borderColor: 'var(--glass-border)' }} />
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <div>
-                                <span style={{ fontSize: 12, color: 'var(--text-muted)', display: 'block' }}>Cost</span>
-                                <span style={{ fontWeight: 700, fontSize: 18, color: 'var(--accent)' }}>₹{p.budget || p.diyPrice}</span>
+                        <div style={{ padding: 25, display: 'flex', flexDirection: 'column', gap: 15, flex: 1 }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                                <h3 style={{ fontSize: '1.4rem' }}>{p.title}</h3>
+                                <span style={{ fontSize: 13, color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>⭐ {p.rating}</span>
                             </div>
-                            <Link to={`/project/${p.id}`} className="btn-primary" style={{ padding: '8px 20px' }}>View Guide</Link>
+                            <p style={{ color: 'var(--text-muted)', fontSize: 14, flex: 1 }}>
+                                {p.concept ? (p.concept.length > 80 ? p.concept.substring(0, 80) + '...' : p.concept) : `Level: ${p.classLevel}`}
+                            </p>
+                            <hr style={{ borderColor: 'var(--glass-border)' }} />
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <div>
+                                    <span style={{ fontSize: 12, color: 'var(--text-muted)', display: 'block' }}>Cost</span>
+                                    <span style={{ fontWeight: 700, fontSize: 18, color: 'var(--accent)' }}>₹{p.budget || p.diyPrice}</span>
+                                </div>
+                                <Link to={`/project/${p.id}`} className="btn-primary" style={{ padding: '10px 20px', fontSize: 14 }}>View Guide</Link>
+                            </div>
                         </div>
                     </div>
                 )) : (
@@ -95,4 +106,5 @@ export default function ProjectList() {
         </div>
     );
 }
+
 
