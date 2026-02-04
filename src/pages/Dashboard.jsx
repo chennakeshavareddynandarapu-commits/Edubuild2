@@ -3,6 +3,7 @@ import { AuthContext } from '../context/AuthContext'
 import { fetchProjects } from '../data/project'
 import { getRecommendations } from '../utils/recommendation'
 import { Link } from 'react-router-dom'
+import ProjectCard from '../components/ProjectCard'
 
 export default function Dashboard() {
   const { user, logout } = useContext(AuthContext)
@@ -30,48 +31,50 @@ export default function Dashboard() {
   const recommendations = getRecommendations(allProjects, prefBudget, prefClass, prefSubject);
 
   if (loading) {
-    return <div className="container" style={{ textAlign: 'center', padding: '100px' }}>Loading Your Recommendations... 🧬</div>;
+    return <div className="container" style={{ textAlign: 'center', padding: '100px' }}>
+      <div className="animate-pulse" style={{ fontSize: '1.5rem', color: 'var(--text-muted)' }}>Loading Your Recommendations... 🧬</div>
+    </div>;
   }
 
   return (
     <div className="container animate-fade">
-      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 40 }}>
+      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 50 }}>
         <div>
-          <h1 style={{ fontSize: '2.5rem', marginBottom: 8 }}>👋 Hello, {user?.name || "Teacher"}!</h1>
-          <p style={{ color: 'var(--text-muted)' }}>Manage your STEM classroom and discover low-cost projects.</p>
+          <h1 style={{ fontSize: '3rem', fontWeight: 800, marginBottom: 8 }}>👋 Hey, {user?.name || "Teacher"}!</h1>
+          <p style={{ color: 'var(--text-muted)', fontSize: '1.1rem' }}>Ready to inspire your students today with low-cost STEM?</p>
         </div>
-        <button onClick={logout} className="btn-primary" style={{ background: 'var(--surface)', border: '1px solid var(--glass-border)' }}>Logout</button>
+        <button onClick={logout} className="btn-primary" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid var(--glass-border)', padding: '10px 25px' }}>Logout</button>
       </header>
 
       {/* Filters Card */}
-      <section className="glass-card" style={{ padding: 30, marginBottom: 40 }}>
-        <h3 style={{ marginBottom: 20, display: 'flex', alignItems: 'center', gap: 10 }}>
-          <span style={{ fontSize: 24 }}>🤖</span> Smart Recommendation Engine
+      <section className="glass-card" style={{ padding: 40, marginBottom: 60, border: '1px solid var(--primary)' }}>
+        <h3 style={{ marginBottom: 25, display: 'flex', alignItems: 'center', gap: 15, fontSize: '1.5rem' }}>
+          <span style={{ fontSize: 32 }}>🪄</span> Smart Recommendation Engine
         </h3>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 20 }}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            <label style={{ fontSize: 14, color: 'var(--text-muted)' }}>Max Budget (₹)</label>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 30 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            <label style={{ fontSize: 13, color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: 1 }}>Max Budget (₹)</label>
             <input
               type="number" value={prefBudget}
               onChange={e => setPrefBudget(Number(e.target.value))}
-              style={{ padding: 12, borderRadius: 10, background: 'rgba(0,0,0,0.2)', border: '1px solid var(--glass-border)', color: 'white' }}
+              style={{ padding: 15, borderRadius: 12, background: 'rgba(0,0,0,0.3)', border: '1px solid var(--glass-border)', color: 'white', fontSize: 16, outline: 'none' }}
             />
           </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            <label style={{ fontSize: 14, color: 'var(--text-muted)' }}>Student Class</label>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            <label style={{ fontSize: 13, color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: 1 }}>Student Class</label>
             <select
               value={prefClass} onChange={e => setPrefClass(e.target.value)}
-              style={{ padding: 12, borderRadius: 10, background: 'rgba(0,0,0,0.2)', border: '1px solid var(--glass-border)', color: 'white' }}
+              style={{ padding: 15, borderRadius: 12, background: 'rgba(0,0,0,0.3)', border: '1px solid var(--glass-border)', color: 'white', fontSize: 16, outline: 'none' }}
             >
               <option>6-8</option>
               <option>9-10</option>
             </select>
           </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            <label style={{ fontSize: 14, color: 'var(--text-muted)' }}>Topic</label>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            <label style={{ fontSize: 13, color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: 1 }}>Topic</label>
             <select
               value={prefSubject} onChange={e => setPrefSubject(e.target.value)}
-              style={{ padding: 12, borderRadius: 10, background: 'rgba(0,0,0,0.2)', border: '1px solid var(--glass-border)', color: 'white' }}
+              style={{ padding: 15, borderRadius: 12, background: 'rgba(0,0,0,0.3)', border: '1px solid var(--glass-border)', color: 'white', fontSize: 16, outline: 'none' }}
             >
               <option>Physics</option>
               <option>Math</option>
@@ -80,50 +83,36 @@ export default function Dashboard() {
         </div>
       </section>
 
-      <section style={{ marginBottom: 60 }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 25 }}>
-          <h2 style={{ fontSize: '1.8rem' }}>Top Matches for You</h2>
-          <Link to="/projects" style={{ color: 'var(--primary)', textDecoration: 'none', fontWeight: 600 }}>Browse All →</Link>
+      <section style={{ marginBottom: 80 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 35 }}>
+          <div>
+            <h2 style={{ fontSize: '2.2rem', fontWeight: 800 }}>Top Matches for You</h2>
+            <p style={{ color: 'var(--text-muted)' }}>Projects curated based on your classroom profile.</p>
+          </div>
+          <Link to="/projects" style={{ color: 'var(--primary)', textDecoration: 'none', fontWeight: 700, fontSize: '1.1rem', borderBottom: '2px solid var(--primary)', paddingBottom: 4 }}>Browse All Experiments →</Link>
         </div>
 
-        <div className="grid-auto">
+        <div className="grid-auto" style={{ gap: 30 }}>
           {recommendations.length > 0 ? recommendations.map(p => (
-            <div key={p.id} className="glass-card animate-fade" style={{ padding: 0, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
-              <div style={{ width: '100%', height: '160px', overflow: 'hidden' }}>
-                <img
-                  src={p.image || "https://images.unsplash.com/photo-1532094349884-543bc11b234d?auto=format&fit=crop&q=80&w=800"}
-                  alt={p.title}
-                  style={{ width: '100%', height: '100%', objectFit: 'cover', transition: '0.4s' }}
-                />
-              </div>
-              <div style={{ padding: 25, display: 'flex', flexDirection: 'column', gap: 15, flex: 1 }}>
-                <div className="badge" style={{ alignSelf: 'flex-start' }}>{p.subject}</div>
-                <h3 style={{ fontSize: '1.4rem' }}>{p.title}</h3>
-                <p style={{ color: 'var(--text-muted)', fontSize: 14, flex: 1 }}>
-                  {p.concept ? (p.concept.length > 80 ? p.concept.substring(0, 80) + '...' : p.concept) : ''}
-                </p>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span style={{ fontWeight: 700, fontSize: 18, color: 'var(--accent)' }}>₹{p.budget || p.diyPrice}</span>
-                  <span style={{ fontSize: 14 }}>⭐ {p.rating}</span>
-                </div>
-                <Link to={`/project/${p.id}`} className="btn-primary" style={{ textDecoration: 'none', fontSize: 14 }}>View Full Guide</Link>
-              </div>
-            </div>
+            <ProjectCard key={p.id} project={p} />
           )) : (
-            <div className="glass-card" style={{ gridColumn: '1 / -1', padding: 30, textAlign: 'center' }}>
-              <p>No projects match your current filters. Try increasing your budget!</p>
+            <div className="glass-card" style={{ gridColumn: '1 / -1', padding: 50, textAlign: 'center' }}>
+              <p style={{ fontSize: '1.1rem' }}>No projects match your current filters. Try increasing your budget!</p>
             </div>
           )}
         </div>
       </section>
 
-      <section className="glass-card" style={{ padding: 40, textAlign: 'center', background: 'linear-gradient(rgba(99, 102, 241, 0.1), rgba(236, 72, 153, 0.1))' }}>
-        <h2 style={{ marginBottom: 10 }}>Have a Low-Cost Idea?</h2>
-        <p style={{ color: 'var(--text-muted)', marginBottom: 25 }}>Contribute to the EDUBUILD community by sharing your own waste-material experiment guide.</p>
-        <Link to="/submit" className="btn-primary" style={{ textDecoration: 'none' }}>Submit Your Project</Link>
+      <section className="glass-card" style={{ padding: 50, textAlign: 'center', background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(236, 72, 153, 0.15))', border: '1px solid rgba(255,255,255,0.1)' }}>
+        <h2 style={{ marginBottom: 15, fontSize: '2rem', fontWeight: 800 }}>Build the Future Together</h2>
+        <p style={{ color: 'var(--text-muted)', marginBottom: 35, fontSize: '1.1rem', maxWidth: 700, margin: '0 auto 35px' }}>
+          Have you designed a low-cost experiment using waste materials? Share your innovation with thousands of teachers and help democratize STEM education.
+        </p>
+        <Link to="/submit" className="btn-primary" style={{ textDecoration: 'none', padding: '15px 40px', fontSize: '1.1rem' }}>Submit Your Innovation</Link>
       </section>
     </div>
   )
 }
+
 
 
