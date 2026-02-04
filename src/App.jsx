@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
 import SignUp from './pages/SignUp';
 import SignIn from './pages/SignIn';
@@ -7,20 +7,17 @@ import AdminDashboard from './pages/AdminDashboard';
 import ProjectList from './pages/ProjectList';
 import ProjectDetail from './pages/ProjectDetail';
 import SubmitProject from './pages/SubmitProject';
-import { AuthProvider, AuthContext } from './context/AuthContext';
+import { AuthProvider } from './context/AuthContext';
 import { LanguageProvider, useLanguage } from './context/LanguageContext';
 import PrivateRoute from './components/PrivateRoute';
 import AdminRoute from './components/AdminRoute';
 
 const NavBar = () => {
   const { language, setLanguage } = useLanguage();
-  const { user } = useContext(AuthContext);
-  const homeLink = user?.role === 'admin' ? '/admin' : '/dashboard';
-
   return (
     <nav className="navbar">
       <div className="container nav-content">
-        <Link to={homeLink} className="logo">EDUBUILD</Link>
+        <Link to="/dashboard" className="logo">EDUBUILD</Link>
         <div style={{ display: 'flex', alignItems: 'center', gap: 30 }}>
           <Link to="/projects" style={{ color: 'var(--text)', textDecoration: 'none', fontWeight: 500 }}>Library</Link>
           <Link to="/submit" style={{ color: 'var(--text)', textDecoration: 'none', fontWeight: 500 }}>Community</Link>
@@ -34,7 +31,6 @@ const NavBar = () => {
               <option value="en">EN</option>
               <option value="hi">HI</option>
               <option value="tel">TE</option>
-              <option value="ta">TA</option>
             </select>
           </div>
         </div>

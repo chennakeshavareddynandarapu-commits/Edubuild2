@@ -14,41 +14,11 @@ export default function SignIn() {
     e.preventDefault()
     setError('')
     try {
-      // Try real API first
       const res = await api.post('/auth/login', { email, password })
-      if (res.data && (res.data.user || res.data.token)) {
-        login(res.data)
-        const userRole = res.data.user?.role || res.data.role
-        navigate(userRole === 'admin' ? '/admin' : '/dashboard')
-        return;
-      }
-      throw new Error('Invalid response from server');
+      login(res.data)
+      navigate(res.data.user.role === 'admin' ? '/admin' : '/dashboard')
     } catch (err) {
-      console.log('API login failed, checking mock credentials...', err.message)
-
-      let savedUsers = []
-      try {
-        savedUsers = JSON.parse(localStorage.getItem('mock_users') || '[]')
-      } catch (e) {
-        console.error('Failed to parse mock_users', e)
-      }
-
-      const user = savedUsers.find(u => u.email === email && u.password === password)
-
-      if (user) {
-        login({ user, token: 'mock-token-' + Math.random() })
-        navigate(user.role === 'admin' ? '/admin' : '/dashboard')
-      } else if (email === 'admin@edubuild.com' && password === 'admin123') {
-        const adminUser = { name: 'Admin User', email, role: 'admin' }
-        login({ user: adminUser, token: 'mock-admin-token' })
-        navigate('/admin')
-      } else if (email === 'teacher@edubuild.com' && password === 'teacher123') {
-        const teacherUser = { name: 'Teacher User', email, role: 'user' }
-        login({ user: teacherUser, token: 'mock-teacher-token' })
-        navigate('/dashboard')
-      } else {
-        setError(err.response?.data?.message || 'Invalid email or password. Try admin@edubuild.com / admin123 (Teacher)')
-      }
+      setError(err.response?.data?.message || 'Login failed')
     }
   }
 

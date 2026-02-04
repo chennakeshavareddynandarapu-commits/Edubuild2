@@ -1,7 +1,5 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { db } from '../firebase/config';
-import { collection, addDoc } from 'firebase/firestore';
 
 export default function SubmitProject() {
     const [title, setTitle] = useState("");
@@ -10,36 +8,11 @@ export default function SubmitProject() {
     const [materials, setMaterials] = useState("");
     const [instructions, setInstructions] = useState("");
     const [submitted, setSubmitted] = useState(false);
-    const [error, setError] = useState("");
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = (e) => {
         e.preventDefault();
-        setError("");
-
-        try {
-            await addDoc(collection(db, 'projects'), {
-                title,
-                subject,
-                budget: parseInt(budget),
-                materials: materials.split(',').map(m => m.trim()),
-                instructions: {
-                    en: instructions.split('\n').filter(i => i.trim()),
-                },
-                classLevel: "All",
-                rating: 5.0,
-                difficulty: "Medium",
-                image: "https://images.unsplash.com/photo-1532094349884-543bc11b234d?auto=format&fit=crop&q=80&w=800", // Default lab image
-                concept: "Community Contribution",
-                learningOutcomes: ["Research", "Innovation"],
-                type: "DIY",
-                timestamp: new Date()
-            });
-            setSubmitted(true);
-        } catch (err) {
-            console.error("Error adding document: ", err);
-            setError("Failed to submit to cloud. Please check your connection.");
-            // Optional: fallback to mock success if requested, but better to show error
-        }
+        // Mock submission
+        setSubmitted(true);
     };
 
     if (submitted) {
@@ -65,7 +38,6 @@ export default function SubmitProject() {
             </header>
 
             <form onSubmit={handleSubmit} className="glass-card" style={{ padding: 40, display: 'flex', flexDirection: 'column', gap: 25 }}>
-                {error && <p style={{ color: '#ff4d4d', textAlign: 'center' }}>{error}</p>}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                     <label style={{ fontWeight: 600 }}>Project Title</label>
                     <input

@@ -4,7 +4,6 @@ dist/
 *.local
 .vscode/
 .DS_Store
-# Firebase secrets
-*-firebase-adminsdk-*.json
-firebase-debug.log*
-.firebase/
+# Google Cloud Service Account Keys
+vm-ddk-business-*.json
+*.json.key
