@@ -1,15 +1,45 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { projects } from '../data/projects';
+import { projects as staticProjects } from '../data/projects';
 import { useLanguage } from '../context/LanguageContext';
 import FeedbackForm from '../components/FeedbackForm';
 import jsPDF from 'jspdf';
+import { db } from '../firebase/config';
+import { doc, getDoc } from 'firebase/firestore';
 
 export default function ProjectDetail() {
     const { id } = useParams();
     const { language } = useLanguage();
-    const project = projects.find(p => p.id === parseInt(id));
 
+    const [project, setProject] = useState(null);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchProject = async () => {
+            try {
+                // Try Firestore first
+                const docRef = doc(db, 'projects', id);
+                const docSnap = await getDoc(docRef);
+
+                if (docSnap.exists()) {
+                    setProject({ id: docSnap.id, ...docSnap.data() });
+                } else {
+                    // Fallback to static data (id might be number or string)
+                    const staticMatch = staticProjects.find(p => p.id === parseInt(id) || p.id === id);
+                    setProject(staticMatch);
+                }
+            } catch (error) {
+                console.log("Firestore fetch error, falling back to static data", error);
+                const staticMatch = staticProjects.find(p => p.id === parseInt(id) || p.id === id);
+                setProject(staticMatch);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchProject();
+    }, [id]);
+
+    if (loading) return <div className="container" style={{ textAlign: 'center', padding: '100px' }}>Loading guide... 🧬</div>;
     if (!project) return <div className="container"><h2>Project not found</h2></div>;
 
     const instructions = project.instructions[language] || project.instructions['en'];
@@ -32,15 +62,20 @@ export default function ProjectDetail() {
         <div className="container animate-fade" style={{ maxWidth: 900 }}>
             <Link to="/projects" style={{ color: 'var(--text-muted)', textDecoration: 'none', display: 'block', marginBottom: 20 }}>← Back to Library</Link>
 
-            <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 40 }}>
-                <div>
-                    <h1 style={{ fontSize: '3rem', fontWeight: 700, marginBottom: 10 }}>{project.title}</h1>
-                    <div style={{ display: 'flex', gap: 10 }}>
-                        <span className="badge">{project.classLevel}</span>
-                        <span className="badge" style={{ borderColor: 'var(--secondary)', color: 'var(--secondary)' }}>{project.subject}</span>
-                    </div>
+            <header style={{ marginBottom: 40 }}>
+                <div style={{ width: '100%', height: '350px', borderRadius: 25, overflow: 'hidden', marginBottom: 30, boxShadow: 'var(--card-shadow)' }}>
+                    <img src={project.image} alt={project.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                 </div>
-                <button onClick={downloadPDF} className="btn-primary" style={{ fontSize: 14 }}>⬇ Save Offline Guide</button>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                    <div>
+                        <h1 style={{ fontSize: '3rem', fontWeight: 700, marginBottom: 10 }}>{project.title}</h1>
+                        <div style={{ display: 'flex', gap: 10 }}>
+                            <span className="badge">{project.classLevel}</span>
+                            <span className="badge" style={{ borderColor: 'var(--secondary)', color: 'var(--secondary)' }}>{project.subject}</span>
+                        </div>
+                    </div>
+                    <button onClick={downloadPDF} className="btn-primary" style={{ fontSize: 14 }}>⬇ Save Offline Guide</button>
+                </div>
             </header>
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 20, marginBottom: 40 }}>

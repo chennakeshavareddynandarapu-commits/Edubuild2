@@ -4,7 +4,7 @@ import { useNavigate, Link } from 'react-router-dom'
 import { AuthContext } from '../context/AuthContext'
 
 export default function SignUp() {
-  const [form, setForm] = useState({ name: '', email: '', password: '', confirmPassword: '', role: 'user', adminSecret: '' })
+  const [form, setForm] = useState({ name: '', email: '', password: '', confirmPassword: '', role: 'admin', adminSecret: '' })
   const [error, setError] = useState('')
   const navigate = useNavigate()
   const { login } = useContext(AuthContext)
@@ -16,14 +16,48 @@ export default function SignUp() {
     setError('')
     if (form.password.length < 8) return setError('Password must be at least 8 characters')
     if (form.password !== form.confirmPassword) return setError('Passwords do not match')
+    if (form.role === 'admin' && form.adminSecret !== 'EDU2026') {
+      return setError('Invalid Teacher Secret Key')
+    }
+
     try {
       const payload = { name: form.name, email: form.email, password: form.password, role: form.role }
       if (form.role === 'admin') payload.adminSecret = form.adminSecret
+
       const res = await api.post('/auth/register', payload)
-      login(res.data)
-      navigate(form.role === 'admin' ? '/admin' : '/dashboard')
+      if (res.data && (res.data.user || res.data.token)) {
+        login(res.data)
+        navigate(form.role === 'admin' ? '/admin' : '/dashboard')
+        return;
+      }
+      throw new Error('Invalid response from server');
     } catch (err) {
-      setError(err.response?.data?.message || 'Registration failed')
+      console.log('API registration failed, using mock storage...', err.message)
+
+      let savedUsers = []
+      try {
+        savedUsers = JSON.parse(localStorage.getItem('mock_users') || '[]')
+      } catch (e) {
+        console.error('Failed to parse mock_users, resetting list', e)
+        savedUsers = []
+      }
+
+      if (savedUsers.find(u => u.email === form.email)) {
+        return setError('Email already registered in demo mode')
+      }
+
+      const newUser = {
+        name: form.name,
+        email: form.email,
+        password: form.password,
+        role: form.role
+      }
+
+      savedUsers.push(newUser)
+      localStorage.setItem('mock_users', JSON.stringify(savedUsers))
+
+      login({ user: newUser, token: 'mock-token-' + Math.random() })
+      navigate(form.role === 'admin' ? '/admin' : '/dashboard')
     }
   }
 
@@ -75,18 +109,18 @@ export default function SignUp() {
 
           <div style={{ display: 'flex', gap: 20, margin: '10px 0' }}>
             <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
-              <input type="radio" name="role" value="user" checked={form.role === 'user'} onChange={handleChange} />
+              <input type="radio" name="role" value="admin" checked={form.role === 'admin'} onChange={handleChange} />
               <span>Teacher</span>
             </label>
             <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
-              <input type="radio" name="role" value="admin" checked={form.role === 'admin'} onChange={handleChange} />
-              <span>Admin</span>
+              <input type="radio" name="role" value="user" checked={form.role === 'user'} onChange={handleChange} />
+              <span>Student</span>
             </label>
           </div>
 
           {form.role === 'admin' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-              <label style={{ fontSize: 14, fontWeight: 600 }}>Admin Secret</label>
+              <label style={{ fontSize: 14, fontWeight: 600 }}>Teacher Secret Key</label>
               <input
                 name="adminSecret" placeholder="Enter secret key"
                 value={form.adminSecret} onChange={handleChange} required

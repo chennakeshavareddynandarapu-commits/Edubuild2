@@ -4,3 +4,7 @@ dist/
 *.local
 .vscode/
 .DS_Store
+# Firebase secrets
+*-firebase-adminsdk-*.json
+firebase-debug.log*
+.firebase/

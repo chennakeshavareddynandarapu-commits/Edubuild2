@@ -10,9 +10,10 @@ export const LanguageProvider = ({ children }) => {
         const dictionary = {
             'en': { 'budget': 'Budget', 'class': 'Class Level', 'subject': 'Subject', 'search': 'Search' },
             'hi': { 'budget': 'बजट', 'class': 'कक्षा स्तर', 'subject': 'विषय', 'search': 'खोज' },
-            'tel': { 'budget': 'బడ్జెట్', 'class': 'తరగతి', 'subject': 'విషయం', 'search': 'శోధన' }
+            'tel': { 'budget': 'బడ్జెట్', 'class': 'తరగతి', 'subject': 'విషయం', 'search': 'శోధన' },
+            'ta': { 'budget': 'பட்ஜெட்', 'class': 'வகுப்பு', 'subject': 'பாடம்', 'search': 'தேடல்' }
         };
-        return dictionary[language]?.[key] || key;
+        return dictionary[language]?.[key] || dictionary['en']?.[key] || key;
     };
 
     return (

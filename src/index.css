@@ -149,3 +149,17 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: var(--primary);
 }
+
+/* Form Elements Global */
+select {
+  background-color: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--glass-border);
+  padding: 8px;
+  border-radius: 8px;
+}
+
+select option {
+  background-color: var(--surface);
+  color: var(--text);
+}
